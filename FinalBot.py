@@ -13,6 +13,9 @@ LIKE_TIME = 20
 FOLLOW_TIME = 20
 COMMENT_TIME = 20
 
+# fa sleep per un numero casuale da 1 a 3 secondi
+def wait_suspect_time():
+    time.sleep(random.randint(1,3))
 
 class InstagramBot:
 
@@ -57,7 +60,7 @@ class InstagramBot:
 
 
     # clicco like sulla pagina corrente 
-    # ritorna vero o falso per controllare se ha funzionato
+    # ritorna vero o falso per controllarne il corretto funzionamento
     def hit_like(self):
         driver = self.driver
         
@@ -70,7 +73,7 @@ class InstagramBot:
 
 
     # clicco follow sulla pagina corrente
-    # ritorna vero o falso per controllare se ha funzionato
+    # ritorna vero o falso per controllarne il corretto funzionamento
     def hit_follow(self):
         driver = self.driver
 
@@ -82,9 +85,10 @@ class InstagramBot:
             return False       
 
 
-    # prendi url delle foto da una pagina di ricerca di un hashtag, li restituisce in un vettore
+    # prendi url delle foto da una pagina di ricerca di un hashtag
     # scrolls = numeri di scrolls da fare della pagina (33 link con 0 scrolls + 9 per scroll)
     # hashtag = hashtag ricercato senza # all'inizio
+    # ritorna un vettore con gli url delle foto nella pagina
     def get_hashtag_posts(self, scrolls, hashtag):
         driver = self.driver
 
@@ -103,5 +107,36 @@ class InstagramBot:
         pic_hrefs = [href for href in pic_hrefs if "?tagged=" + hashtag in href]
 
         return pic_hrefs
+
+
+    # commenta il post corrente con una frase casuale all'interno di comments
+    # commets = un vettore contenente i commenti (1 solo nel caso si voglia sempre lo stesso)
+    # ritorna vero o falso per controllarne il corretto funzionamento
+    def comment_post(self, comments):
+        driver = self.driver
+
+        try:
+            # cerco la casella di testo e commento
+            comment_button = driver.find_element_by_xpath("//button[@class='oF4XW dCJp8']")
+            comment_button.click()
+
+            comment_box_elem = driver.find_element_by_xpath("//textarea[@aria-label='Aggiungi un commento...']")
+            comment_box_elem.click()
+            comment_box_elem.send_keys('')
+            comment_box_elem.clear()
+            wait_suspect_time()
+
+            # commento un commento casuale in comments
+            commento = comments[random.randint(0, len(comments) -1)]
+            for lettera in commento:
+                comment_box_elem.send_keys(lettera)
+                time.sleep(random.randint(1, 7) / 28)
+            wait_suspect_time
+            comment_box_elem.send_keys(Keys.RETURN)
+
+            return True
+
+        except Exception:
+            return False
 
 
