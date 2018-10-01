@@ -6,16 +6,18 @@ import time
 import random
 
 # tempo di download di una pagina (in secondi)
-DOWNLOAD_TIME = 2
+DOWNLOAD_TIME = 4
 
 # tempi di attesa inerenti alle varie azioni (in secondi)
 LIKE_TIME = 20
 FOLLOW_TIME = 20
 COMMENT_TIME = 20
+SCROLL_TIME = 0.5
 
 # fa sleep per un numero casuale da 1 a 3 secondi
 def wait_suspect_time():
     time.sleep(random.randint(1,3))
+
 
 class InstagramBot:
 
@@ -109,6 +111,28 @@ class InstagramBot:
         return pic_hrefs
 
 
+    # prendi url delle foto da un profilo di uno user
+    # scrolls = numeri di scrolls da fare della pagina (33 link con 0 scrolls + 9 per scroll)
+    # user = nome dello user da cui prendere le foto
+    # ritorna un vettore con gli url delle foto nella pagina
+    def get_user_posts(self, scrolls, user):
+        driver = self.driver
+        
+        # vado nella pagina dello user richiesto
+        driver.get("https://www.instagram.com/" + user + "/")
+        time.sleep(DOWNLOAD_TIME)
+
+        for i in range(0, scrolls):
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(DOWNLOAD_TIME)
+        
+        a_vector = driver.find_elements_by_tag_name("a")
+        pic_hrefs = [elem.get_attribute("href") for elem in a_vector]
+        pic_hrefs = [href for href in pic_hrefs if "taken-by=" + user in href]
+
+        return pic_hrefs
+
+
     # commenta il post corrente con una frase casuale all'interno di comments
     # commets = un vettore contenente i commenti (1 solo nel caso si voglia sempre lo stesso)
     # ritorna vero o falso per controllarne il corretto funzionamento
@@ -140,3 +164,29 @@ class InstagramBot:
             return False
 
 
+    # prende nomi dei followers da un determinato user
+    # scrolls = numero di scrolls da fare sul pop up dei followers (ogni scroll viene fatto in un tempo SCROLL_TIME)
+    # user = nome dello user da cui prendere i nomi
+    # ritorna un vettore con i nomi degli utenti ottenuti
+    def get_followers_names(self, scrolls, user):
+        driver = self.driver
+
+        # vado sulla pagina dello user da cui prendere i followers
+        driver.get("https://www.instagram.com/" + user + "/")
+        time.sleep(DOWNLOAD_TIME)
+
+        # clicco sul pulsante dei followers
+        driver.find_element_by_xpath("//a[@href='/"+ user +"/followers/']").click()
+        time.sleep(DOWNLOAD_TIME)
+
+        # eseguo gli scrolls richiesti
+        for i in range(0, scrolls):
+            driver.execute_script("arguments[0].scrollTop = arguments[1];", driver.find_element_by_class_name("j6cq2"), 10000*i)
+            time.sleep(SCROLL_TIME)
+
+        # prendo i nomi
+        a_vector = driver.find_elements_by_xpath("//a[@class='FPmhX notranslate _0imsa ']")
+        names = [elem.get_attribute("title") for elem in a_vector]
+
+        return names
+        
