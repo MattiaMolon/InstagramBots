@@ -190,3 +190,18 @@ class InstagramBot:
 
         return names
         
+
+    # prende il nome della persona a cui appartiene il post all'interno della pagina del post
+    def get_name_from_post(self):
+        driver = self.driver
+
+        nome = "not-found"
+
+        try: 
+            # cerco il nome e lo salvo
+            nome = driver.find_element_by_xpath("//a[@class='FPmhX notranslate nJAzx']")
+            nome = nome.get_attribute("title")
+        except Exception:
+            pass
+        
+        return nome
