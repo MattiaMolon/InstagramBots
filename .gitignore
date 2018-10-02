@@ -2,3 +2,4 @@ geckoDriver
 names
 geckodriver.log
 template.py
+__pycache__
