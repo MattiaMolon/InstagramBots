@@ -209,7 +209,7 @@ class InstagramBot:
 
     # clicca unfollow sulla pagina corrente
     # ritorna vero o falso per controllarne il corretto funzionamento
-    def hit_unfolow(self):
+    def hit_unfollow(self):
         driver = self.driver
 
         try:
