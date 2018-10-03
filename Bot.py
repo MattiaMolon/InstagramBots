@@ -205,3 +205,16 @@ class InstagramBot:
             pass
         
         return nome
+    
+
+    # clicca unfollow sulla pagina corrente
+    # ritorna vero o falso per controllarne il corretto funzionamento
+    def hit_unfolow(self):
+        driver = self.driver
+
+        try:
+            driver.find_element_by_xpath("//button[@class='_5f5mN    -fzfL     _6VtSN     yZn4P   ']").click()
+            return True
+        except:
+            return False
+
