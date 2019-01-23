@@ -7,5 +7,5 @@ In order to use it you need to :
 * Download and install the selenium client. you can use this [link](https://www.seleniumhq.org/download/)
 * Download and install the mozilla browser.
 * Create a new python file.
-* Use the bot class functions do use it as you want :)
+* import the bot class and use its functions to do what you want :)
 
