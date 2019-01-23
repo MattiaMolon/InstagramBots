@@ -5,16 +5,16 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 import time
 import random
 
-# tempo di download di una pagina (in secondi)
+# time to download a page (in seconds)
 DOWNLOAD_TIME = 4
 
-# tempi di attesa inerenti alle varie azioni (in secondi)
+# different time for each action (in seconds)
 LIKE_TIME = 20
 FOLLOW_TIME = 20
 COMMENT_TIME = 20
 SCROLL_TIME = 0.5
 
-# fa sleep per un numero casuale da 1 a 3 secondi
+# the bot sleep a random time between 1 and 3 seconds
 def wait_suspect_time():
     time.sleep(random.randint(1,3))
 
@@ -31,20 +31,20 @@ class InstagramBot:
         self.driver = webdriver.Firefox()
     
 
-    # effettuo login
+    # login
     def login(self):
         
-        # accedo alla pagina di login
+        # access to the login page
         driver = self.driver
         driver.get("https://www.instagram.com/")
         time.sleep(DOWNLOAD_TIME)
 
-        # cerco pulsante di login
+        # look for the login button
         login_button = driver.find_element_by_xpath("//a[@href='/accounts/login/?source=auth_switcher']")
         login_button.click()
         time.sleep(DOWNLOAD_TIME)
 
-        # inserisco nome e password
+        # insert name and password
         username_box = driver.find_element_by_xpath("//input[@name='username']")
         username_box.clear()
         for letter in self.username:
@@ -61,49 +61,49 @@ class InstagramBot:
         password_box.send_keys(Keys.RETURN)
 
 
-    # clicco like sulla pagina corrente 
-    # ritorna vero o falso per controllarne il corretto funzionamento
+    # hit like in current page 
+    # return true or false to check the correct workflow
     def hit_like(self):
         driver = self.driver
         
         try:
-            # cerca il tasto like e lo clicca
+            # search like button and click it
             driver.find_element_by_xpath("//button[@class='coreSpriteHeartOpen oF4XW dCJp8']").click()
             return True
         except NoSuchElementException:
             return False
 
 
-    # clicco follow sulla pagina corrente
-    # ritorna vero o falso per controllarne il corretto funzionamento
+    # click follow in the current page
+    # return true or false to check the correct workflow
     def hit_follow(self):
         driver = self.driver
 
         try:
-            # cerca il tasto  follow e lo clicca
+            # search follow button and click it
             driver.find_element_by_xpath("//button[@class='oW_lN oF4XW sqdOP yWX7d       ']").click()
             return True
         except NoSuchElementException:
             return False       
 
 
-    # prendi url delle foto da una pagina di ricerca di un hashtag
-    # scrolls = numeri di scrolls da fare della pagina (33 link con 0 scrolls + 9 per scroll)
-    # hashtag = hashtag ricercato senza # all'inizio
-    # ritorna un vettore con gli url delle foto nella pagina
+    # take photos' urls forma an hashtag page
+    # scrolls = number of scrolls to do in a page (usually 33 link with 0 scrolls + 9 per scroll)
+    # hashtag = hashtag searched (without #)
+    # return a vector with all the photos' urls
     def get_hashtag_posts(self, scrolls, hashtag):
         driver = self.driver
 
-        # vado sull'hashag richiesto
+        # search the hashtag
         driver.get("https://www.instagram.com/explore/tags/" + hashtag + "/")
         time.sleep(DOWNLOAD_TIME)
 
-        # scorro la pagina 
+        # scroll the page to load the photos
         for i in range(0, scrolls):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(DOWNLOAD_TIME)
 
-        # prendo i riferimenti alle foto caricate
+        # taka the links to the photos
         a_vector = driver.find_elements_by_tag_name("a")
         pic_hrefs = [elem.get_attribute("href") for elem in a_vector]
         pic_hrefs = [href for href in pic_hrefs if "?tagged=" + hashtag in href]
@@ -111,14 +111,14 @@ class InstagramBot:
         return pic_hrefs
 
 
-    # prendi url delle foto da un profilo di uno user
-    # scrolls = numeri di scrolls da fare della pagina (33 link con 0 scrolls + 9 per scroll)
-    # user = nome dello user da cui prendere le foto
+    # take photos' urls from a profile page
+    # scrolls = number of scrolls to do in a page (usually 33 link with 0 scrolls + 9 per scroll)
+    # user = name of the user to look for
     # ritorna un vettore con gli url delle foto nella pagina
     def get_user_posts(self, scrolls, user):
         driver = self.driver
         
-        # vado nella pagina dello user richiesto
+        # go to the user page
         driver.get("https://www.instagram.com/" + user + "/")
         time.sleep(DOWNLOAD_TIME)
 
@@ -133,14 +133,14 @@ class InstagramBot:
         return pic_hrefs
 
 
-    # commenta il post corrente con una frase casuale all'interno di comments
-    # commets = un vettore contenente i commenti (1 solo nel caso si voglia sempre lo stesso)
-    # ritorna vero o falso per controllarne il corretto funzionamento
+    # comment the post of the page with a random sentence in comments[]
+    # commets = a vector that contains comments
+    # return true or false to check the correct workflow
     def comment_post(self, comments):
         driver = self.driver
 
         try:
-            # cerco la casella di testo e commento
+            # search the text box
             comment_button = driver.find_element_by_xpath("//button[@class='oF4XW dCJp8']")
             comment_button.click()
 
@@ -150,7 +150,7 @@ class InstagramBot:
             comment_box_elem.clear()
             wait_suspect_time()
 
-            # commento un commento casuale in comments
+            # comment a random comment from the vector
             commento = comments[random.randint(0, len(comments) -1)]
             for lettera in commento:
                 comment_box_elem.send_keys(lettera)
@@ -164,41 +164,41 @@ class InstagramBot:
             return False
 
 
-    # prende nomi dei followers da un determinato user
-    # scrolls = numero di scrolls da fare sul pop up dei followers (ogni scroll viene fatto in un tempo SCROLL_TIME)
-    # user = nome dello user da cui prendere i nomi
-    # ritorna un vettore con i nomi degli utenti ottenuti
+    # take followers names froma a user page
+    # scrolls = number of scrolls to do in the followers pop-up (a scroll is done each SCROLL_TIME)
+    # user = name of the user from which take the names
+    # return a vector containing the names
     def get_followers_names(self, scrolls, user):
         driver = self.driver
 
-        # vado sulla pagina dello user da cui prendere i followers
+        # go to the user page
         driver.get("https://www.instagram.com/" + user + "/")
         time.sleep(DOWNLOAD_TIME)
 
-        # clicco sul pulsante dei followers
+        # click followers button
         driver.find_element_by_xpath("//a[@href='/"+ user +"/followers/']").click()
         time.sleep(DOWNLOAD_TIME)
 
-        # eseguo gli scrolls richiesti
+        # scroll the pop-up
         for i in range(0, scrolls):
             driver.execute_script("arguments[0].scrollTop = arguments[1];", driver.find_element_by_class_name("j6cq2"), 10000*i)
             time.sleep(SCROLL_TIME)
 
-        # prendo i nomi
+        # take the names
         a_vector = driver.find_elements_by_xpath("//a[@class='FPmhX notranslate _0imsa ']")
         names = [elem.get_attribute("title") for elem in a_vector]
 
         return names
         
 
-    # prende il nome della persona a cui appartiene il post all'interno della pagina del post
+    # take the name of the person that has the post open in the page
     def get_name_from_post(self):
         driver = self.driver
 
         nome = "not-found"
 
         try: 
-            # cerco il nome e lo salvo
+            # search and save the name
             nome = driver.find_element_by_xpath("//a[@class='FPmhX notranslate nJAzx']")
             nome = nome.get_attribute("title")
         except Exception:
@@ -207,8 +207,8 @@ class InstagramBot:
         return nome
     
 
-    # clicca unfollow sulla pagina corrente
-    # ritorna vero o falso per controllarne il corretto funzionamento
+    # click unfollow on the current page
+    # return true or false to check the correct workflow
     def hit_unfollow(self):
         driver = self.driver
 
